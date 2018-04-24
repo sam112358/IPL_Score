@@ -28,7 +28,7 @@ while i in range(0,num_matches-1):
         if 'MUMBAI' in check_team:
             check_term = 'MI'
         if 'KINGS' in check_team:
-            check_term = 'KXI'
+            check_term = 'KXIP'
         if 'CHENNAI' in check_team:
             check_term = 'CSK'
         if 'KOLKATA' in check_team:

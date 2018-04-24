@@ -62,24 +62,40 @@ while i in range(0,num_matches - 1):
         analysis.write(a, 3, k) #inning
         analysis.write(a, 5, name) #playerName
         analysis.write(a, 6, category) #category
-        if category == 'Batsman': #writing on the new ffile for batsmen
-            distype = (raw_data.cell_value(i, 3)).split()
-            if 'c' in distype:
+        if category == 'Batsman':
+            dismiss  = raw_data.cell_value(i, 3)
+            distype = dismiss.split()
+            if 'c' in distype: #caught
                 analysis.write(a, 7, 'Catch') #dismissalType
-                analysis.write(a, 9, distype[1] + ' ' + distype[2]) #fielder
+                if '&' in distype: #caught and bowled
+                    start = dismiss.index("c & b") + 4
+                    analysis.write(a, 9, (dismiss[start:])[:-1])
+                else:
+                    start = dismiss.index("c ") + 2
+                    end = dismiss.index("b ")
+                    analysis.write(a, 9, (dismiss[start:end])[:-1])
             elif 'b' in distype:
                 if 'st' in distype:
+                    start = dismiss.index("st ") + 2
+                    end = dismiss.index("b ")
                     analysis.write(a, 7, 'Stump') #dismissalType
-                    analysis.write(a, 8, distype[4] + ' ' + distype[5]) #bowler
-                    analysis.write(a, 9, distype[1] + ' ' + distype[2]) #fielder
+                    analysis.write(a, 8, (dismiss[end+2:])[:-1]) #bowler
+                    analysis.write(a, 9, (dismiss[start+1:end])[:-1]) #fielder
                 else:
+                    start = dismiss.index("b ") + 1
                     analysis.write(a, 7, 'Bowled') #dismissalType
-                    analysis.write(a, 8, distype[1] + ' ' + distype[2]) #bowler
+                    analysis.write(a, 8, (dismiss[start+1:])[:-1]) #bowler  
             elif 'lbw' in distype:
+                start = dismiss.index("lbw ") + 3
                 analysis.write(a, 7, 'LBW') #dismissalType
-                analysis.write(a, 8, distype[1] + ' ' + distype[2]) #bowler
+                analysis.write(a, 8, (dismiss[start+1:])) #bowler
             elif 'NOT' in distype:
                 analysis.write(a, 7, 'Not Out') #dismissalType
+            elif 'run' in distype:
+                start = dismiss.index("(")
+                end = dismiss.index(")")
+                analysis.write(a, 7, 'Run Out') #dismissalType
+                analysis.write(a, 9, (dismiss[start+1:end]))
             runs_scored = raw_data.cell_value(i, 4)
             balls_played = raw_data.cell_value(i, 5)
             strike_rate = raw_data.cell_value(i, 6)
@@ -91,7 +107,7 @@ while i in range(0,num_matches - 1):
             analysis.write(a, 13, num_4)
             analysis.write(a, 14, num_6)
     
-        if category == 'Bowler': #writing on new file for bowlers
+        if category == 'Bowler':
             overs_bowled = raw_data.cell_value(i, 3)
             runs_against = raw_data.cell_value(i, 4)
             wickets_taken = raw_data.cell_value(i, 5)
@@ -108,6 +124,7 @@ while i in range(0,num_matches - 1):
         
 wb.save('analysis.xlsx') #saving the file
 
+
 #setting teams
 sheet = xlrd.open_workbook('analysis.xlsx')
 update = sheet.sheet_by_index(0)
@@ -121,17 +138,25 @@ while i in range(0, a):
         analysis.write(i, 1, (team1))
         analysis.write(i, 2, (team2))
         i -= 1
+        
+wb.save('analysis_test.xlsx') #saving the file
+
 
 #concatenating the player with bowling and batting
+sheet = xlrd.open_workbook('analysis_test.xlsx')
+update = sheet.sheet_by_index(0)
+
 for i in range(0, a-1):
-    if update.cell_value(i, 5) == '':
-        for k in range(0, 20):
+    #removing the extra columns that were added
+    if update.cell_value(i, 5) == '': 
+        for k in range(0, 22):
                 analysis.write(i, k) == ''
+     
+    #concatenating the stats of 1 match for the same player           
     mno = update.cell_value(i, 0)
     player_name = update.cell_value(i, 5)
     innings = update.cell_value(i, 3)
     category = update.cell_value(i, 6)
-    num_catch = num_stumps = num_runout = 0
     for j in range(i, a-1):
         if mno == update.cell_value(j, 0) and player_name == update.cell_value(j, 5) and innings != update.cell_value(j, 3):
             if category == 'Batsman':
@@ -147,7 +172,25 @@ for i in range(0, a-1):
                 analysis.write(i, 13, int(update.cell_value(j, 13)))
                 analysis.write(i, 14, int(update.cell_value(j, 14)))
             for k in range(0, 20):
-                analysis.write(j, k) == ''
-        
-wb.save('analysis.xlsx') #saving the file
+                analysis.write(j, k) == '' #removing redundant stats
+    
+    num_catch = num_stump = num_runout = 0
+    for j in range(0, a-1):
+        #adding the number of fielding stats for each player for each mach
+        if mno == update.cell_value(j, 0):
+            
+            if player_name == update.cell_value(j, 9):
+                if update.cell_value(j, 7) == 'Catch':
+                    num_catch += 1
+                    print (1)
+                elif update.cell_value(j, 7) == 'Stump':
+                    num_stump += 1
+                    print (2)
+                elif update.cell_value(j, 7) == 'Run Out':
+                    num_runout += 1
+                    print(3)
+    analysis.write(i, 20, num_catch)
+    analysis.write(i, 21, num_stump)
+    analysis.write(i, 22, num_runout)
 
+wb.save('analysis_test.xlsx') #saving the file
