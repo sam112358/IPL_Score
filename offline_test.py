@@ -141,10 +141,16 @@ while i in range(0, a):
 wb.save('analysis_test.xlsx') #saving the file
 
 #concatenating the player with bowling and batting
+sheet = xlrd.open_workbook('analysis_test.xlsx')
+update = sheet.sheet_by_index(0)
+
 for i in range(0, a-1):
-    if update.cell_value(i, 5) == '':
-        for k in range(0, 20):
+    #removing the extra columns that were added
+    if update.cell_value(i, 5) == '': 
+        for k in range(0, 22):
                 analysis.write(i, k) == ''
+     
+    #concatenating the stats of 1 match for the same player           
     mno = update.cell_value(i, 0)
     player_name = update.cell_value(i, 5)
     innings = update.cell_value(i, 3)
@@ -165,14 +171,16 @@ for i in range(0, a-1):
                 analysis.write(i, 13, int(update.cell_value(j, 13)))
                 analysis.write(i, 14, int(update.cell_value(j, 14)))
             for k in range(0, 20):
-                analysis.write(j, k) == ''
+                analysis.write(j, k) == '' #removing redundant stats
+                
+        #adding the number of fielding stats for each player for each mach
         if mno == update.cell_value(j, 0):
             if player_name == update.cell_value(j, 8):
-                if update.cell_value(k, 6) == 'Catch':
+                if update.cell_value(j, 6) == 'Catch':
                     num_catch += 1
-                if update.cell_value(k, 6) == 'Stump':
+                if update.cell_value(j, 6) == 'Stump':
                     num_stump += 1
     analysis.write(i, 20, num_catch)
-    analysis.write(i, 20, num_stump)
+    analysis.write(i, 21, num_stump)
 
 wb.save('analysis_test.xlsx') #saving the file
