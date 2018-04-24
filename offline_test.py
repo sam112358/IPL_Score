@@ -28,7 +28,7 @@ while i in range(0,num_matches-1):
         if 'MUMBAI' in check_team:
             check_term = 'MI'
         if 'KINGS' in check_team:
-            check_term = 'KXIP'
+            check_term = 'KXIPh'
         if 'CHENNAI' in check_team:
             check_term = 'CSK'
         if 'KOLKATA' in check_team:
@@ -184,3 +184,28 @@ for i in range(0, a-1):
     analysis.write(i, 21, num_stump)
 
 wb.save('analysis_test.xlsx') #saving the file
+
+
+#POINTS CALCULATOR
+playerdb = workbook.sheet_by_index(2)
+
+for i in range(0, a-1):
+    strike_rate = update.cell_value(i, 12)
+    base_pts = update.cell_value(i, 10)
+    wickets = update.cell_value(i, 17)
+    num_6s = update.cell_value(i, 14)
+    runs 
+    if base_pts > 10:
+        if strike_rate < 75:
+            pace_bonus_pts = -15
+        elif strike_rate < 100:
+            pace_bonus_pts = -10
+        elif strike_rate < 150:
+            pace_bonus_pts = -5
+        elif strike_rate < 200:
+            pace_bonus_pts = 10
+        else:
+            pace_bonus_pts = 15
+    if 
+
+
