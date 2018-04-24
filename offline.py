@@ -148,11 +148,6 @@ for i in range(0, a-1):
                 analysis.write(i, 14, int(update.cell_value(j, 14)))
             for k in range(0, 20):
                 analysis.write(j, k) == ''
-        if mno == update.cell_value(j, 0) and player_name == update.cell_value(j, 5) and innings != update.cell_value(j, 3):
-            if player_name == update.cell_value(j, 8):
-                if update.cell_value(k, 6) == 'Catch':
-                    catch += 1
-                if update.cell_value(k, 6) == 'Stump':
-                    stump += 1
+        
 wb.save('analysis.xlsx') #saving the file
 

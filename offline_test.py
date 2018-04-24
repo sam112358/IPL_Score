@@ -61,27 +61,42 @@ while i in range(0,num_matches-1):
         analysis.write(a, 5, name) #playerName
         analysis.write(a, 6, category) #category
         if category == 'Batsman':
-            distype = (raw_data.cell_value(i, 3)).split()
-            if 'c' in distype:
+            dismiss  = raw_data.cell_value(i, 3)
+            distype = dismiss.split()
+            if 'c' in distype: #caught
                 analysis.write(a, 7, 'Catch') #dismissalType
-                if 'b' in distype:
-                    analysis.write(a, 9, distype[3] + ' ' + distype[4]) #caught and bowled
-                analysis.write(a, 9, distype[1] + ' ' + distype[2])
+                if '&' in distype: #caught and bowled
+                    start = dismiss.index("c & b") + 4
+                    analysis.write(a, 9, (dismiss[start:])[:-1])
+                else:
+                    start = dismiss.index("c ") + 2
+                    end = dismiss.index("b ")
+                    analysis.write(a, 9, (dismiss[start:end])[:-1])
             elif 'b' in distype:
                 if 'st' in distype:
+                    start = dismiss.index("st ") + 2
+                    end = dismiss.index("b ")
                     analysis.write(a, 7, 'Stump') #dismissalType
-                    analysis.write(a, 8, distype[4] + ' ' + distype[5]) #bowler
-                    analysis.write(a, 9, distype[1] + ' ' + distype[2]) #fielder
+                    analysis.write(a, 8, (dismiss[end+1:])[:-1]) #bowler
+                    analysis.write(a, 9, (dismiss[start:end])[:-1]) #fielderr
                 else:
+                    start = dismiss.index("b ") + 1
                     analysis.write(a, 7, 'Bowled') #dismissalType
-                    analysis.write(a, 8, distype[1] + ' ' + distype[2]) #bowler
-                
-                
+                    analysis.write(a, 8, (dismiss[start:])[:-1]) #bowler  
             elif 'lbw' in distype:
-                analysis.write(a, 7, 'lbw') #dismissalType
-                analysis.write(a, 8, distype[1] + ' ' + distype[2]) #bowler
+                start = dismiss.index("lbw ") + 3
+                analysis.write(a, 7, 'LBW') #dismissalType
+                analysis.write(a, 8, (dismiss[start:])[:-1]) #bowler
             elif 'NOT' in distype:
                 analysis.write(a, 7, 'Not Out') #dismissalType
+            elif 'run' in distype:
+                start = dismiss.index("(")
+                end = dismiss.index(")")
+#                slash_posi = run_out_second_name.index("/")
+                analysis.write(a, 7, 'Run Out') #dismissalType
+                analysis.write(a, 9, (dismiss[start+1:end])[:-1])
+#                run_out_second_name = run_out_second_name[:slash_posi]
+#                analysis.write(a, 8, run_out_first_name + run_out_second_name)
             runs_scored = raw_data.cell_value(i, 4)
             balls_played = raw_data.cell_value(i, 5)
             strike_rate = raw_data.cell_value(i, 6)
