@@ -68,7 +68,7 @@ while i in range(0,num_matches - 1):
             if 'c' in distype: #caught
                 analysis.write(a, 7, 'Catch') #dismissalType
                 if '&' in distype: #caught and bowled
-                    start = dismiss.index("c & b") + 4
+                    start = dismiss.index("c & b") + 6
                     analysis.write(a, 9, (dismiss[start:])[:-1])
                 else:
                     start = dismiss.index("c ") + 2
@@ -139,11 +139,11 @@ while i in range(0, a):
         analysis.write(i, 2, (team2))
         i -= 1
         
-wb.save('analysis_test.xlsx') #saving the file
+wb.save('analysis.xlsx') #saving the file
 
 
 #concatenating the player with bowling and batting
-sheet = xlrd.open_workbook('analysis_test.xlsx')
+sheet = xlrd.open_workbook('analysis.xlsx')
 update = sheet.sheet_by_index(0)
 
 for i in range(0, a-1):
@@ -160,7 +160,7 @@ for i in range(0, a-1):
     for j in range(i, a-1):
         if mno == update.cell_value(j, 0) and player_name == update.cell_value(j, 5) and innings != update.cell_value(j, 3):
             if category == 'Batsman':
-                analysis.write(i, 15, int(update.cell_value(j, 15)))
+                analysis.write(i, 15, (update.cell_value(j, 15)))
                 analysis.write(i, 16, int(update.cell_value(j, 16)))
                 analysis.write(i, 17, int(update.cell_value(j, 17)))
                 analysis.write(i, 18, int(update.cell_value(j, 18)))
@@ -173,12 +173,16 @@ for i in range(0, a-1):
                 analysis.write(i, 14, int(update.cell_value(j, 14)))
             for k in range(0, 20):
                 analysis.write(j, k) == '' #removing redundant stats
-    
+
+wb.save('analysis.xlsx') #saving the file
+
+for i in range(0, a-1):
+    mno = update.cell_value(i, 0)
+    player_name = update.cell_value(i, 5)
     num_catch = num_stump = num_runout = 0
     for j in range(0, a-1):
         #adding the number of fielding stats for each player for each mach
         if mno == update.cell_value(j, 0):
-            
             if player_name == update.cell_value(j, 9):
                 if update.cell_value(j, 7) == 'Catch':
                     num_catch += 1
@@ -193,4 +197,100 @@ for i in range(0, a-1):
     analysis.write(i, 21, num_stump)
     analysis.write(i, 22, num_runout)
 
-wb.save('analysis_test.xlsx') #saving the file
+wb.save('analysis.xlsx') #saving the file
+
+#POINTS CALCULATOR
+#playerdb = workbook.sheet_by_index(2)
+sheet = xlrd.open_workbook('analysis.xlsx')
+update = sheet.sheet_by_index(0)
+
+for i in range(0, a-2):
+    strike_rate = update.cell_value(i, 12)
+    base_pts = update.cell_value(i, 10)
+    wickets = update.cell_value(i, 17)
+    num_6s = update.cell_value(i, 14)
+    runs_scored = base_pts
+    num_stump = num_runout = num_catch = fielding_points = bowling_impact = bowling_milestone = economy_pts = impact_pts = base_points = pace_bonus_pts = bowling_base = milestone_pts = 0
+    wickets_taken = update.cell_value(i, 17)
+    economy_rate = update.cell_value(i, 18)
+    
+    try:
+        num_catch = update.cell_value(i, 20)
+    except:
+        analysis.write(i, 20, 0)
+            
+    try:
+        num_stump = update.cell_value(i, 21)
+    except:
+        analysis.write(i, 21, 0)
+
+    try:
+        num_runout = update.cell_value(i, 22)
+    except:
+        analysis.write(i, 22, 0)
+    try:
+        if base_pts > 10: #calculating batsman base
+            if strike_rate < 75:
+                pace_bonus_pts = -15
+            elif strike_rate < 100:
+                pace_bonus_pts = -10
+            elif strike_rate < 150:
+                pace_bonus_pts = 5
+            elif strike_rate < 200:
+                pace_bonus_pts = 10
+            else:
+                pace_bonus_pts = 15
+    except:
+        analysis.write(i, 10, 0)
+        
+    try:
+        if runs_scored > 25: #calculating batsman milestone
+            milestone_pts = int(runs_scored/25)
+    except:
+        analysis.write(i, 10, 0)
+        
+    impact_pts = num_6s * 2 #calculating batsman impact
+    if runs_scored == 0:
+        impact_pts -= 5
+        
+    if wickets_taken: #calculating bowling_base
+        bowling_base = wickets_taken * 20
+    try:    
+        if economy_rate <= 5: #calculating economy points
+            economy_pts = 15
+        elif economy_rate <= 8:
+            economy_pts = 10
+        elif economy_rate <= 10:
+            economy_pts = 5
+        elif economy_rate <= 12:
+            economy_pts = -10
+        else:
+            economy_pts = -15
+    except:
+        analysis.write(i, 18, 0)
+        
+    try:
+        if wickets_taken == 2: #calculating bowling milestone
+            bowling_miestone = 10
+        elif wickets_taken >= 2:
+            bowling_milestone = (wickets_taken - 2) * 10
+    except:
+        analysis.write(i, 17, 0)
+        
+    bowling_impact = update.cell_value(i, 19) #calculating bowling impact points
+    
+    fielding_points = (num_catch * 10) + (num_stump * 15) + (num_runout * 10)
+    
+    analysis.write(i, 24, base_pts)
+    analysis.write(i, 25, pace_bonus_pts)
+    analysis.write(i, 26, milestone_pts)
+    analysis.write(i, 27, impact_pts)
+    analysis.write(i, 28, economy_pts)
+    analysis.write(i, 29, bowling_milestone)
+    analysis.write(i, 30, bowling_impact)
+    
+for i in range(0, a):
+    if update.cell_value(i, 0) == '':
+        for j in range(0, 31):
+            analysis.write(i, j, '')
+wb.save('analysis.xlsx') #saving the file
