@@ -7,7 +7,7 @@ workbook = xlrd.open_workbook('ipl_scores.xlsx')
 wb = xlwt.Workbook()
 
 #creating new file to work on
-raw_data = workbook.sheet_by_index(0)
+raw_data = workbook.sheet_by_index(1)
 analysis = wb.add_sheet('analysis_test', cell_overwrite_ok=True)
 
 #working on new file
@@ -197,28 +197,32 @@ for i in range(0, a-1):
     #removing the extra columns that were added
     if update.cell_value(i, 5) == '': 
         for k in range(0, 22):
-                analysis.write(i, k) == ''
+                analysis.write(i, k, '')
+
+for i in range(0, a-1):
     #concatenating the stats of 1 match for the same player           
     mno = update.cell_value(i, 0)
     player_name = update.cell_value(i, 5)
     innings = update.cell_value(i, 3)
     category = update.cell_value(i, 6)
+    
     for j in range(i, a-1):
-        if mno == update.cell_value(j, 0) and player_name == update.cell_value(j, 5) and innings != update.cell_value(j, 3):
-            if category == 'Batsman':
-                analysis.write(i, 15, (update.cell_value(j, 15)))
-                analysis.write(i, 16, int(update.cell_value(j, 16)))
-                analysis.write(i, 17, int(update.cell_value(j, 17)))
-                analysis.write(i, 18, int(update.cell_value(j, 18)))
-                analysis.write(i, 19, int(update.cell_value(j, 19)))
-            elif category == 'Bowler':
-                analysis.write(i, 10, int(update.cell_value(j, 10)))
-                analysis.write(i, 11, int(update.cell_value(j, 11)))
-                analysis.write(i, 12, int(update.cell_value(j, 12)))
-                analysis.write(i, 13, int(update.cell_value(j, 13)))
-                analysis.write(i, 14, int(update.cell_value(j, 14)))
-            for k in range(0, 20):
-                analysis.write(j, k) == '' #removing redundant stats
+        if update.cell_value(i, 0) != '':
+            if mno == update.cell_value(j, 0) and player_name == update.cell_value(j, 5) and innings != update.cell_value(j, 3):
+#            if category == 'Batsman':
+                analysis.write(i, 15, (update.cell_value(j, 15) + update.cell_value(i, 15)))
+                analysis.write(i, 16, int(update.cell_value(j, 16) + update.cell_value(i, 16)))
+                analysis.write(i, 17, int(update.cell_value(j, 17) + update.cell_value(i, 17)))
+                analysis.write(i, 18, int(update.cell_value(j, 18) + update.cell_value(i, 18)))
+                analysis.write(i, 19, int(update.cell_value(j, 19) + update.cell_value(i, 19)))
+#                elif category == 'Bowler':
+                analysis.write(i, 10, int(update.cell_value(j, 10) + update.cell_value(i, 10)))
+                analysis.write(i, 11, int(update.cell_value(j, 11) + update.cell_value(i, 11)))
+                analysis.write(i, 12, int(update.cell_value(j, 12) + update.cell_value(i, 12)))
+                analysis.write(i, 13, int(update.cell_value(j, 13) + update.cell_value(i, 13)))
+                analysis.write(i, 14, int(update.cell_value(j, 14) + update.cell_value(i, 14)))
+                for k in range(0, 20):
+                    analysis.write(j, k) == '' #removing redundant stats
 wb.save('analysis_test.xlsx') #saving the file
 
 
@@ -237,13 +241,10 @@ for i in range(0, a-1):
             if player_name == update.cell_value(j, 9):
                 if update.cell_value(j, 7) == 'Catch':
                     num_catch += 1
-                    print (1)
                 elif update.cell_value(j, 7) == 'Stump':
                     num_stump += 1
-                    print (2)
                 elif update.cell_value(j, 7) == 'Run Out':
                     num_runout += 1
-                    print(3)
     analysis.write(i, 20, num_catch)
     analysis.write(i, 21, num_stump)
     analysis.write(i, 22, num_runout)
@@ -306,7 +307,6 @@ for i in range(0, a-2):
     impact_pts = num_6s * 2 #calculating batsman impact
     if runs_scored == 0:
         impact_pts -= 5
-        
     if wickets_taken: #calculating bowling_base
         bowling_base = wickets_taken * 20
     try:    

@@ -47,6 +47,10 @@ while i in range(0,num_matches - 1):
             check_term = 'RR'
         if 'DELHI' in check_team:
             check_term = 'DD'
+        if 'PUNE' in check_team:
+            check_term = 'RPS'
+        if 'GUJARAT' in check_team:
+            check_term = 'GL'
         if k == 0 or k == 2: #sets innings
             team1 = check_term
             k = 1
@@ -73,7 +77,10 @@ while i in range(0,num_matches - 1):
             if 'c' in distype: #caught
                 analysis.write(a, 7, 'Catch') #dismissalType
                 if '&' in distype: #caught and bowled
-                    start = dismiss.index("c & b") + 6
+                    if 'b' in distype:
+                        start = dismiss.index("c & b") + 6
+                    else:
+                        start = dismiss.index("c & B") + 6
                     analysis.write(a, 9, (dismiss[start:])[:-1])
                 else:
                     start = dismiss.index("c ") + 2
@@ -240,10 +247,8 @@ for i in range(0, a-1):
                     print (1)
                 elif update.cell_value(j, 7) == 'Stump':
                     num_stump += 1
-                    print (2)
                 elif update.cell_value(j, 7) == 'Run Out':
                     num_runout += 1
-                    print(3)
     analysis.write(i, 20, num_catch)
     analysis.write(i, 21, num_stump)
     analysis.write(i, 22, num_runout)
