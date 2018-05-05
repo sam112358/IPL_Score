@@ -96,7 +96,7 @@ while i in range(0,num_matches - 1):
                 else:
                     start = dismiss.index("b ") + 1
                     analysis.write(a, 7, 'Bowled') #dismissalType
-                    analysis.write(a, 8, (dismiss[start+1:])[:-1]) #bowler  
+                    analysis.write(a, 8, (dismiss[start+1:])) #bowler  
             elif 'lbw' in distype:
                 start = dismiss.index("lbw ") + 3
                 analysis.write(a, 7, 'LBW') #dismissalType
