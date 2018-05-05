@@ -15,9 +15,12 @@ team_set = i = k = name_check = a = t = num_matches = 0
 team1 = team2 = ' '
 
 mno = raw_data.cell_value(num_matches, 0)
-while mno:
-    mno = raw_data.cell_value(num_matches-1, 0)    
-    num_matches += 1
+try:
+    while mno:
+        mno = raw_data.cell_value(num_matches-1, 0)   
+        num_matches += 1
+except:
+    i = 0
 
 
 
@@ -104,7 +107,10 @@ while i in range(0,num_matches - 1):
                 start = dismiss.index("(")
                 end = dismiss.index(")")
                 analysis.write(a, 7, 'Run Out') #dismissalType
-                analysis.write(a, 9, (dismiss[start+1:end]))
+                check = dismiss[start+1:end]
+                if '/' in check:
+                    end = check.index('/')
+                    analysis.write(a, 9, (check[:end]))
                 
             runs_scored = raw_data.cell_value(i, 4)
             balls_played = raw_data.cell_value(i, 5)
@@ -227,7 +233,7 @@ for i in range(0, a-1):
                 analysis.write(i, 18, update.cell_value(j, 18) + update.cell_value(i, 18))
                 analysis.write(i, 19, int(update.cell_value(j, 19) + update.cell_value(i, 19)))
                 
-                for k in range(0, 20):
+                for k in range(0, 34):
                     analysis.write(j, k) == '' #removing redundant stats
 wb.save('analysis_test.xlsx') #saving the file
 
@@ -260,7 +266,7 @@ wb.save('analysis_test.xlsx') #saving the file
 
 
 
-#adding the player roles and teams from playerDB sheets
+#adding the player roles and teams from playerDB sheets 
 sheet = xlrd.open_workbook('analysis_test.xlsx')
 update = sheet.sheet_by_index(0)
 
@@ -277,13 +283,9 @@ for i in range(0, a-1):
         if mno == player_db.cell_value(j, 22):
             if player_db.cell_value(j, 24) == update.cell_value(i, 4): #added isWinner
                 analysis.write(i, 35, 1)
-#            else:
-#                analysis.write(i, 35, 0)
                 
             if player_db.cell_value(j, 25) == update.cell_value(i, 5): #added isMVP
                 analysis.write(i, 36, 1)
-#            else:
-#                analysis.write(i, 35, 0)
 
 wb.save('analysis_test.xlsx') #saving the file
 
@@ -298,13 +300,15 @@ update = sheet.sheet_by_index(0)
 
 for i in range(0, a-2):
     if update.cell_value(i, 0):
-        num_stump = num_runout = num_catch = bowling_impact_pts = bowling_milestone_pts = economy_pts = impact_pts = pace_bonus_pts = bowling_base_pts = milestone_pts = 0
+        num_stump = num_runout = num_catch = bowling_impact_pts = bowling_milestone_pts = economy_pts = impact_pts = 0
+        extra_bonus_pts = pace_bonus_pts = bowling_base_pts = milestone_pts = 0
+        
+        base_pts = update.cell_value(i, 10)
+        strike_rate = update.cell_value(i, 12)
+        num_6s = update.cell_value(i, 14)
         wickets_taken = update.cell_value(i, 17)
         economy_rate = update.cell_value(i, 18)
-        strike_rate = update.cell_value(i, 12)
-        base_pts = update.cell_value(i, 10)
-        wickets = update.cell_value(i, 17)
-        num_6s = update.cell_value(i, 14)
+        
         runs_scored = base_pts
         
         try:
@@ -366,34 +370,34 @@ for i in range(0, a-2):
             
         try:
             if wickets_taken == 2: #calculating bowling milestone
-                bowling_miestone_pts = 10
-            if wickets_taken >= 2:
-                bowling_milestone_pts = (wickets_taken - 2) * 10
+                bowling_milestone_pts = 10
+            if wickets_taken > 2:
+                bowling_milestone_pts += ((wickets_taken - 2) * 10) + 10
         except:
             analysis.write(i, 17, 0)
             
-        bowling_impact = update.cell_value(i, 19) #calculating bowling impact points   
+        bowling_impact_pts = update.cell_value(i, 19) #calculating bowling impact points 
         
         fielding_pts = (num_catch * 10) + (num_stump * 15) + (num_runout * 10) #calculating total fielding points      
         total_batting_pts = base_pts + pace_bonus_pts + milestone_pts + impact_pts #calculating total batting points
         total_bowling_pts = economy_pts + bowling_milestone_pts + bowling_impact_pts + bowling_base_pts #calculating total bowling points
         
         if update.cell_value(i, 35) == 1:
-            extra_bonus_pts = 5
-            if update.cell_value(i, 36) == 1:
+            extra_bonus_pts += 5
+        if update.cell_value(i, 36) == 1:
                 extra_bonus_pts += 25
                 
-        grand_total_pts = total_batting_pts + total_bowling_pts + fielding_pts + extra_bonus_pts
+        grand_total_pts = total_batting_pts + total_bowling_pts + fielding_pts
                 
         #writing the calculated points on the sheet
         analysis.write(i, 24, base_pts)
         analysis.write(i, 25, pace_bonus_pts)
         analysis.write(i, 26, milestone_pts)
         analysis.write(i, 27, impact_pts)
-        analysis.write(i, 28, economy_pts)
-        analysis.write(i, 29, bowling_milestone_pts)
-        analysis.write(i, 30, bowling_impact_pts)
-        analysis.write(i, 31, bowling_base_pts)
+        analysis.write(i, 28, bowling_base_pts)
+        analysis.write(i, 29, economy_pts)
+        analysis.write(i, 30, bowling_milestone_pts)
+        analysis.write(i, 31, bowling_impact_pts)
         analysis.write(i, 32, fielding_pts)
         analysis.write(i, 33, total_batting_pts)
         analysis.write(i, 34, total_bowling_pts)
@@ -407,7 +411,43 @@ wb.save('analysis_test.xlsx') #saving the file
 
 
 
-#A1 - MATCH NUMBER
-#AG35 - WINNER (YES = 1)        
-#AH36 - MVP (YES = 1)
-#AI37 - EXTRA BONUS (= WINNER + MVP BONUS)
+#A0 - MATCH NUMBER
+#B1 - TEAM1
+#C2 - TEAM2
+#D3 - INNINGS
+#E4 - TEAM OF THE PLAYER 
+#F5 - PLAYER NAME
+#G6 - PLAYER ROLE
+#H7 - DISMISSAL TYPE
+#I8 - BOWLER
+#J9 - FIELDER
+#K10 - RUNS
+#L11 - BALLS PLAYED
+#M12 - STRIKE RATE
+#N13 - NUMBER OF 4S
+#O14 - NUMBER OF 6S
+#P15 - OVER BOWLED
+#Q16 - RUNS AGAINST
+#R17 - WICKETS TAKEN 
+#S18 - ECONOMY
+#T19 - DOT BALLS
+#U20 - NUMBER OF CATCHES
+#V21 - NUMBER OF STUMPS
+#W22 - NUMBER OF RUNOUT
+#X23 - 
+#Y24 - BATTING BASE POINTS
+#Z25 - BATTING PACE BONUS POINTS
+#AA26 - BATTING MILESTONE POINTS
+#AB27 - BATTING IMPACT POINTS
+#AC28 - BOWLING BASE POINTS
+#AD29 - BOWLING ECONOMY POINTS
+#AE30 - BOWLING MILESTONE POINTS
+#AF31 - BOWLING IMPACT POINTS
+#AG32 - TOTAL FIELDING POINTS
+#AH33 - TOTAL BATTING POINTS
+#AI34 - TOTAL BOWLIMG POINTS
+#AJ35 - WINNER (YES = 1)        
+#AK36 - MVP (YES = 1)
+#AL37 - EXTRA BONUS (= WINNER + MVP BONUS)
+#AM37 - EXTRA BONUS POINTS(5 FOR WIN, 25 FOR MVP)
+#AN38 - GRAND TOTAL POINTS
