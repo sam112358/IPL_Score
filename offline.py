@@ -275,11 +275,11 @@ for i in range(0, a-1):
     player_name = update.cell_value(i, 5)
     for j in range(1, 188):
         if player_name == player_db.cell_value(j, 1):
-            analysis.write(i, 4, player_db.cell_value(j, 5)) #write player time by crosschecking with playerdb
+            analysis.write(i, 4, player_db.cell_value(j, 5)) #write player team by crosschecking with playerdb
             analysis.write(i, 6, player_db.cell_value(j, 2)) #write player role by crosschecking with playerdb
             
     mno = update.cell_value(i, 0)
-    for j in range(4, 36):
+    for j in range(4, 44):
         if mno == player_db.cell_value(j, 22):
             if player_db.cell_value(j, 24) == update.cell_value(i, 4): #added isWinner
                 analysis.write(i, 35, 1)
@@ -449,5 +449,5 @@ wb.save('analysis_test.xlsx') #saving the file
 #AJ35 - WINNER (YES = 1)        
 #AK36 - MVP (YES = 1)
 #AL37 - EXTRA BONUS (= WINNER + MVP BONUS)
-#AM37 - EXTRA BONUS POINTS(5 FOR WIN, 25 FOR MVP)
+#AM3 - EXTRA BONUS POINTS(5 FOR WIN, 25 FOR MVP)
 #AN38 - GRAND TOTAL POINTS

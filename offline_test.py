@@ -7,7 +7,7 @@ workbook = xlrd.open_workbook('ipl_scores.xlsx')
 wb = xlwt.Workbook()
 
 #creating new file to work on
-raw_data = workbook.sheet_by_index(11)
+raw_data = workbook.sheet_by_index(13)
 analysis = wb.add_sheet('analysis_test', cell_overwrite_ok=True)
 
 #working on new file
@@ -15,20 +15,20 @@ team_set = i = k = name_check = a = t = num_matches = 0
 team1 = team2 = ' '
 
 mno = raw_data.cell_value(num_matches, 0)
-while mno :
-    mno = raw_data.cell_value(num_matches-1, 0)    
-    num_matches += 1
+try:
+    while mno:
+        mno = raw_data.cell_value(num_matches-1, 0)   
+        num_matches += 1
+except:
+    i = 0
 
 
 
 
 
-#run till here first
+#setting initial information
 i = 0
-while i in range(0,num_matches - 1):
-#    if raw_data.cell_value(i, 0) != '':
-#        match = raw_data.cell_value(i, 0)
-        
+while i in range(0,num_matches - 1):        
     mno = raw_data.cell_value(i, 0)
     name = raw_data.cell_value(i, 2)
     check_term = raw_data.cell_value(i, 1)
@@ -37,7 +37,7 @@ while i in range(0,num_matches - 1):
         if 'MUMBAI' in check_team:
             check_term = 'MI'
         if 'KINGS' in check_team:
-            check_term = 'KXI'
+            check_term = 'KXIP'
         if 'CHENNAI' in check_team:
             check_term = 'CSK'
         if 'KOLKATA' in check_team:
@@ -50,6 +50,12 @@ while i in range(0,num_matches - 1):
             check_term = 'RR'
         if 'DELHI' in check_team:
             check_term = 'DD'
+        if 'PUNE' in check_team:
+            check_term = 'PWI'
+        if 'DECCAN' in check_team:
+            check_term = 'DC'
+        if 'GUJARAT' in check_team:
+            check_term = 'GL'
         if k == 0 or k == 2: #sets innings
             team1 = check_term
             k = 1
@@ -76,7 +82,10 @@ while i in range(0,num_matches - 1):
             if 'c' in distype: #caught
                 analysis.write(a, 7, 'Catch') #dismissalType
                 if '&' in distype: #caught and bowled
-                    start = dismiss.index("c & b") + 6
+                    try :
+                        start = dismiss.index("c & b") + 6
+                    except : 
+                        start = dismiss.index("c & B") + 6
                     analysis.write(a, 9, (dismiss[start:])[:-1])
                 else:
                     start = dismiss.index("c ") + 2
@@ -92,7 +101,7 @@ while i in range(0,num_matches - 1):
                 else:
                     start = dismiss.index("b ") + 1
                     analysis.write(a, 7, 'Bowled') #dismissalType
-                    analysis.write(a, 8, (dismiss[start+1:])[:-1]) #bowler  
+                    analysis.write(a, 8, (dismiss[start+1:])) #bowler  
             elif 'lbw' in distype:
                 start = dismiss.index("lbw ") + 3
                 analysis.write(a, 7, 'LBW') #dismissalType
@@ -103,7 +112,10 @@ while i in range(0,num_matches - 1):
                 start = dismiss.index("(")
                 end = dismiss.index(")")
                 analysis.write(a, 7, 'Run Out') #dismissalType
-                analysis.write(a, 9, (dismiss[start+1:end]))
+                check = dismiss[start+1:end]
+                if '/' in check:
+                    end = check.index('/')
+                    analysis.write(a, 9, (check[:end]))
                 
             runs_scored = raw_data.cell_value(i, 4)
             balls_played = raw_data.cell_value(i, 5)
@@ -212,6 +224,9 @@ for i in range(0, a-1):
     for j in range(i, a):
         if update.cell_value(i, 0) != '':
             if mno == update.cell_value(j, 0) and player_name == update.cell_value(j, 5) and innings != update.cell_value(j, 3):
+                analysis.write(i, 7, update.cell_value(j, 7))
+                analysis.write(i, 8, update.cell_value(j, 8))
+                analysis.write(i, 9, update.cell_value(j, 9))
                 analysis.write(i, 10, int(update.cell_value(j, 10) + update.cell_value(i, 10)))
                 analysis.write(i, 11, int(update.cell_value(j, 11) + update.cell_value(i, 11)))
                 analysis.write(i, 12, int(update.cell_value(j, 12) + update.cell_value(i, 12)))
@@ -220,13 +235,13 @@ for i in range(0, a-1):
                 analysis.write(i, 15, (update.cell_value(j, 15) + update.cell_value(i, 15)))
                 analysis.write(i, 16, int(update.cell_value(j, 16) + update.cell_value(i, 16)))
                 analysis.write(i, 17, int(update.cell_value(j, 17) + update.cell_value(i, 17)))
-                analysis.write(i, 18, int(update.cell_value(j, 18) + update.cell_value(i, 18)))
+                try :    
+                    analysis.write(i, 18, update.cell_value(j, 18) + update.cell_value(i, 18))
+                except :
+                    temp = 0
                 analysis.write(i, 19, int(update.cell_value(j, 19) + update.cell_value(i, 19)))
                 
-                if mno == 30:
-                    print(player_name)
-                
-                for k in range(0, 20):
+                for k in range(0, 34):
                     analysis.write(j, k) == '' #removing redundant stats
 wb.save('analysis_test.xlsx') #saving the file
 
@@ -259,6 +274,33 @@ wb.save('analysis_test.xlsx') #saving the file
 
 
 
+##adding the player roles and teams from playerDB sheets 
+#sheet = xlrd.open_workbook('analysis_test.xlsx')
+#update = sheet.sheet_by_index(0)
+#
+#player_db = workbook.sheet_by_index(0)
+#for i in range(0, a-1):
+#    player_name = update.cell_value(i, 5)
+#    for j in range(1, 188):
+#        if player_name == player_db.cell_value(j, 1):
+#            analysis.write(i, 4, player_db.cell_value(j, 5)) #write player team by crosschecking with playerdb
+#            analysis.write(i, 6, player_db.cell_value(j, 2)) #write player role by crosschecking with playerdb
+#            
+#    mno = update.cell_value(i, 0)
+#    for j in range(4, 42):
+#        if mno == player_db.cell_value(j, 22):
+#            if player_db.cell_value(j, 24) == update.cell_value(i, 4): #added isWinner
+#                analysis.write(i, 35, 1)
+#                
+#            if player_db.cell_value(j, 25) == update.cell_value(i, 5): #added isMVP
+#                analysis.write(i, 36, 1)
+#
+#wb.save('analysis_test.xlsx') #saving the file
+
+
+
+
+
 
 #Calculate fantasy points using the stats
 sheet = xlrd.open_workbook('analysis_test.xlsx')
@@ -266,14 +308,16 @@ update = sheet.sheet_by_index(0)
 
 for i in range(0, a-2):
     if update.cell_value(i, 0):
-        strike_rate = update.cell_value(i, 12)
+        num_stump = num_runout = num_catch = bowling_impact_pts = bowling_milestone_pts = economy_pts = impact_pts = 0
+        extra_bonus_pts = pace_bonus_pts = bowling_base_pts = milestone_pts = 0
+        
         base_pts = update.cell_value(i, 10)
-        wickets = update.cell_value(i, 17)
+        strike_rate = update.cell_value(i, 12)
         num_6s = update.cell_value(i, 14)
-        runs_scored = base_pts
-        num_stump = num_runout = num_catch = bowling_impact = bowling_milestone = economy_pts = impact_pts = base_points = pace_bonus_pts = bowling_base = milestone_pts = 0
         wickets_taken = update.cell_value(i, 17)
         economy_rate = update.cell_value(i, 18)
+        
+        runs_scored = base_pts
         
         try:
             num_catch = update.cell_value(i, 20)
@@ -307,7 +351,7 @@ for i in range(0, a-2):
             
         try:
             if runs_scored > 25: #calculating batsman milestone
-                milestone_pts = int(runs_scored/25)
+                milestone_pts = int(runs_scored/25) * 10
         except:
             analysis.write(i, 10, 0)
             
@@ -316,7 +360,7 @@ for i in range(0, a-2):
             impact_pts -= 5
             
         if wickets_taken: #calculating bowling_base
-            bowling_base = wickets_taken * 20
+            bowling_base_pts = wickets_taken * 20
         try:    
             if update.cell_value(i, 15) != 0:
                 if economy_rate <= 5: #calculating economy points
@@ -334,29 +378,84 @@ for i in range(0, a-2):
             
         try:
             if wickets_taken == 2: #calculating bowling milestone
-                bowling_miestone = 10
-            elif wickets_taken >= 2:
-                bowling_milestone = (wickets_taken - 2) * 10
+                bowling_milestone_pts = 10
+            if wickets_taken > 2:
+                bowling_milestone_pts += ((wickets_taken - 2) * 10) + 10
         except:
             analysis.write(i, 17, 0)
             
-        bowling_impact = update.cell_value(i, 19) #calculating bowling impact points   
+        bowling_impact_pts = update.cell_value(i, 19) #calculating bowling impact points 
         
-        fielding_points = (num_catch * 10) + (num_stump * 15) + (num_runout * 10)
+        fielding_pts = (num_catch * 10) + (num_stump * 15) + (num_runout * 10) #calculating total fielding points      
+        total_batting_pts = base_pts + pace_bonus_pts + milestone_pts + impact_pts #calculating total batting points
+        total_bowling_pts = economy_pts + bowling_milestone_pts + bowling_impact_pts + bowling_base_pts #calculating total bowling points
         
-        
+#        if update.cell_value(i, 35) == 1:
+#            extra_bonus_pts += 5
+#        if update.cell_value(i, 36) == 1:
+#                extra_bonus_pts += 25
+                
+        grand_total_pts = total_batting_pts + total_bowling_pts + fielding_pts
+                
         #writing the calculated points on the sheet
         analysis.write(i, 24, base_pts)
         analysis.write(i, 25, pace_bonus_pts)
         analysis.write(i, 26, milestone_pts)
         analysis.write(i, 27, impact_pts)
-        analysis.write(i, 28, economy_pts)
-        analysis.write(i, 29, bowling_milestone)
-        analysis.write(i, 30, bowling_impact)
-#    analysis.write(i, 30, fielding_pts)
+        analysis.write(i, 28, bowling_base_pts)
+        analysis.write(i, 29, economy_pts)
+        analysis.write(i, 30, bowling_milestone_pts)
+        analysis.write(i, 31, bowling_impact_pts)
+        analysis.write(i, 32, fielding_pts)
+        analysis.write(i, 33, total_batting_pts)
+        analysis.write(i, 34, total_bowling_pts)
+        analysis.write(i, 37, extra_bonus_pts)
+        analysis.write(i, 38, grand_total_pts)
     
-#for i in range(0, a):
-#    if update.cell_value(i, 0) == '':
-#        for j in range(0, 31):
-#            analysis.write(i, j, '')
 wb.save('analysis_test.xlsx') #saving the file
+
+
+
+
+
+
+#A0 - MATCH NUMBER
+#B1 - TEAM1
+#C2 - TEAM2
+#D3 - INNINGS
+#E4 - TEAM OF THE PLAYER 
+#F5 - PLAYER NAME
+#G6 - PLAYER ROLE
+#H7 - DISMISSAL TYPE
+#I8 - BOWLER
+#J9 - FIELDER
+#K10 - RUNS
+#L11 - BALLS PLAYED
+#M12 - STRIKE RATE
+#N13 - NUMBER OF 4S
+#O14 - NUMBER OF 6S
+#P15 - OVER BOWLED
+#Q16 - RUNS AGAINST
+#R17 - WICKETS TAKEN 
+#S18 - ECONOMY
+#T19 - DOT BALLS
+#U20 - NUMBER OF CATCHES
+#V21 - NUMBER OF STUMPS
+#W22 - NUMBER OF RUNOUT
+#X23 - 
+#Y24 - BATTING BASE POINTS
+#Z25 - BATTING PACE BONUS POINTS
+#AA26 - BATTING MILESTONE POINTS
+#AB27 - BATTING IMPACT POINTS
+#AC28 - BOWLING BASE POINTS
+#AD29 - BOWLING ECONOMY POINTS
+#AE30 - BOWLING MILESTONE POINTS
+#AF31 - BOWLING IMPACT POINTS
+#AG32 - TOTAL FIELDING POINTS
+#AH33 - TOTAL BATTING POINTS
+#AI34 - TOTAL BOWLIMG POINTS
+#AJ35 - WINNER (YES = 1)        
+#AK36 - MVP (YES = 1)
+#AL37 - EXTRA BONUS (= WINNER + MVP BONUS)
+#AM37 - EXTRA BONUS POINTS(5 FOR WIN, 25 FOR MVP)
+#AN38 - GRAND TOTAL POINTS
