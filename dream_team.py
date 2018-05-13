@@ -25,7 +25,7 @@ except:
 
 a = 0
 
-for i in range(1,41):
+for i in range(1,47):
     
     player_name = []
     player_score = []
@@ -74,7 +74,7 @@ for i in range(1,41):
     wb.save('dream_team.xlsx')
     
     for j in range(0, 22):
-        if player_role[j] == 'Batsman' and no_batsmen < 4:
+        if player_role[j] == 'Batsman' and no_batsmen < 3:
             dream_team.append(player_name[j])
             analysis.write(a, 0, mno)
             analysis.write(a, 1, player_name[j])
@@ -87,7 +87,7 @@ for i in range(1,41):
 
                 
     for j in range(0, 22):
-        if player_role[j] == 'Bowler' and no_bowlers < 2:
+        if player_role[j] == 'Bowler' and no_bowlers < 3:
             dream_team.append(player_name[j])
             analysis.write(a, 0, mno)
             analysis.write(a, 1, player_name[j])
@@ -99,7 +99,7 @@ for i in range(1,41):
     wb.save('dream_team.xlsx')
     
     for j in range(0, 22):
-        if player_role[j] == 'All Rounder' and no_all_rounders < 1:
+        if player_role[j] == 'All Rounder' and no_all_rounders < 3:
             dream_team.append(player_name[j])
             analysis.write(a, 0, mno)
             analysis.write(a, 1, player_name[j])
@@ -134,7 +134,7 @@ for i in range(1,41):
                 total_dream_players += 1
                 a += 1
                 
-            if player_role[j] == 'All Rounder' and no_all_rounders < 5 and player_name[j] not in dream_team:
+            if player_role[j] == 'All Rounder' and no_all_rounders < 6 and player_name[j] not in dream_team:
                 dream_team.append(player_name[j])
                 analysis.write(a, 0, mno)
                 analysis.write(a, 1, player_name[j])

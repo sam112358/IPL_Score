@@ -273,13 +273,13 @@ update = sheet.sheet_by_index(0)
 player_db = workbook.sheet_by_index(0)
 for i in range(0, a-1):
     player_name = update.cell_value(i, 5)
-    for j in range(1, 188):
+    for j in range(1, 189):
         if player_name == player_db.cell_value(j, 1):
             analysis.write(i, 4, player_db.cell_value(j, 5)) #write player team by crosschecking with playerdb
             analysis.write(i, 6, player_db.cell_value(j, 2)) #write player role by crosschecking with playerdb
             
     mno = update.cell_value(i, 0)
-    for j in range(4, 44):
+    for j in range(4, 51):
         if mno == player_db.cell_value(j, 22):
             if player_db.cell_value(j, 24) == update.cell_value(i, 4): #added isWinner
                 analysis.write(i, 35, 1)
@@ -407,9 +407,19 @@ for i in range(0, a-2):
 wb.save('analysis_test.xlsx') #saving the file
 
 
-
-
-
+j = 2
+k = 0
+for i in range(0, a-1):       
+    if update.cell_value(i, 0) != '':
+        if k % 11 == 0:
+            if j == 1:
+                j = 2
+            elif j == 2:
+                j = 1
+        analysis.write(i, 3, j)
+        k += 1
+                
+wb.save('analysis_test.xlsx') #saving the file
 
 #A0 - MATCH NUMBER
 #B1 - TEAM1
