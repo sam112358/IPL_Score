@@ -279,7 +279,7 @@ for i in range(0, a-1):
             analysis.write(i, 6, player_db.cell_value(j, 2)) #write player role by crosschecking with playerdb
             
     mno = update.cell_value(i, 0)
-    for j in range(4, 51):
+    for j in range(4, 55):
         if mno == player_db.cell_value(j, 22):
             if player_db.cell_value(j, 24) == update.cell_value(i, 4): #added isWinner
                 analysis.write(i, 35, 1)
