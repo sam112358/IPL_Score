@@ -25,7 +25,7 @@ except:
 
 a = 0
 
-for i in range(1,51):
+for i in range(1,61):
     
     player_name = []
     player_score = []
